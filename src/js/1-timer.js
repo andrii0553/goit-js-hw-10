@@ -1,23 +1,36 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
 
 const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
+  minuteIncrement: 1,
   onClose(selectedDates) {
-    userDate = selectedDates[0]; 
-    if (userDate <= new Date()) {
-      alert("Please choose a date in the future");
-      startBtn.disabled = true;
-    } else {
-      startBtn.disabled = false;
-    }
-  },
-}; 
+    const selectedDate = selectedDates[0];
+    const currentDate = new Date();
+        if (selectedDate <= currentDate) {
+            btnStart.disabled = true;
+            iziToast.error({
+                title: 'Error',
+                message: 'Please choose a date in the future',
+            });
+
+        } else {
+            userDate = selectedDate;
+            btnStart.disabled = false;
+            iziToast.success({
+                title: 'OK',
+                message: 'You can press "Start"!',
+            });
+        }
+    },
+};
 
 const dataPicker = document.querySelector(`#datetime-picker`);
-const startBtn = document.querySelector(`button[data-start]`);
+const btnStart = document.querySelector(`button[data-start]`);
 const day = document.querySelector(`span[data-days]`);
 const hour = document.querySelector(`span[data-hours]`);
 const minute = document.querySelector(`span[data-minutes]`);
@@ -30,18 +43,18 @@ let intervalId = null;
 let userDate = null;
 
 
-startBtn.addEventListener(`click`, () => {
+btnStart.addEventListener(`click`, () => {
 
     intervalId = setInterval(() => {
       const currentTime = new Date();
       const diffMs = userDate - currentTime;
 
 
-        if (diffMs < 1000) {
+        if (diffMs <= 0) {
           clearInterval(intervalId);
           return;
       }
-      startBtn.disabled = true;
+      btnStart.disabled = true;
       const time = convertMs(diffMs);
       updateTimerDisplay(time);
 
